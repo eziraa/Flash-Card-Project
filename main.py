@@ -3,12 +3,29 @@ from tkinter import *
 
 GREEN = "#9fd6b8"
 
-with open("Data/french_words.csv") as data_file:
-    data = data_file.readlines()
-    word_list = []
-    for item in data:
-        single_word = item.split(",")
-        word_list.append([single_word[0], single_word[1].strip()])
+# Handling files
+try:
+    with open("Data/words_ro_learn.csv") as data_file:
+        data = data_file.readlines()
+        word_list = []
+        print(data)
+        if len(data) == 0:
+            with open("Data/french-words.csv") as data_file:
+                data = data_file.readlines()
+                for item in data:
+                    single_word = item.split(",")
+                    word_list.append([single_word[0], single_word[1].strip()])
+        else:
+            for item in data:
+                single_word = item.split(",")
+                word_list.append([single_word[0], single_word[1].strip()])
+except FileNotFoundError:
+    with open("Data/french-words.csv") as data_file:
+        data = data_file.readlines()
+        word_list = []
+        for item in data:
+            single_word = item.split(",")
+            word_list.append([single_word[0], single_word[1].strip()])
 
 random_word = []
 
@@ -24,6 +41,21 @@ def next_card():
     flip_timer = window.after(3000, func=flip_card)
 
 
+# Handling correct answer
+def is_known():
+    word_list.remove(random_word)
+    with open("Data/words_ro_learn.csv", "w") as file_data:
+        file_data.write("")
+    if len(word_list) > 0:
+        with open("Data/words_ro_learn.csv", "a") as file_data:
+            for word in word_list:
+                file_data.write(f"{word[0]},{word[1]}\n")
+            next_card()
+
+    else:
+        canvas.itemconfig(language_text, text="", fill="black")
+        canvas.itemconfig(language_text, text="Congratulation!!! You know All Words", fill="black")
+        canvas.itemconfig(canvas_img, image=card_front_img)
 
 
 def flip_card():
@@ -51,6 +83,6 @@ wrong_img = PhotoImage(file="Images/wrong.png")
 wrong_btn = Button(image=wrong_img, highlightthickness=0, command=next_card)
 wrong_btn.grid(row=1, column=0)
 right_img = PhotoImage(file="Images/right.png")
-right_btn = Button(image=right_img, highlightthickness=0, command=next_card)
+right_btn = Button(image=right_img, highlightthickness=0, command=is_known)
 right_btn.grid(row=1, column=1)
 window.mainloop()
