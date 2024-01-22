@@ -1,7 +1,7 @@
 import random
 from tkinter import *
 
-GREEN = "#9fd6b8"
+GREEN = "#9fd6b9"
 
 # Handling files
 try:
@@ -34,7 +34,8 @@ def next_card():
     global random_word
     global flip_timer
     window.after_cancel(flip_timer)
-    random_word = random.choice(word_list)
+    if len(word_list) > 0:
+        random_word = random.choice(word_list)
     canvas.itemconfig(language_text, text="French", fill="black")
     canvas.itemconfig(word_text, text=random_word[0], fill="black")
     canvas.itemconfig(canvas_img, image=card_front_img)
@@ -43,7 +44,8 @@ def next_card():
 
 # Handling correct answer
 def is_known():
-    word_list.remove(random_word)
+    if word_list.__contains__(random_word):
+        word_list.remove(random_word)
     with open("Data/words_ro_learn.csv", "w") as file_data:
         file_data.write("")
     if len(word_list) > 0:
@@ -53,9 +55,10 @@ def is_known():
             next_card()
 
     else:
-        canvas.itemconfig(language_text, text="", fill="black")
-        canvas.itemconfig(language_text, text="Congratulation!!! You know All Words", fill="black")
+        canvas.itemconfig(word_text, text="", fill="black")
+        canvas.itemconfig(language_text, text="Congratulation!!!\nYou know All Words", fill="black")
         canvas.itemconfig(canvas_img, image=card_front_img)
+        window.after_cancel(flip_timer)
 
 
 def flip_card():
@@ -85,4 +88,5 @@ wrong_btn.grid(row=1, column=0)
 right_img = PhotoImage(file="Images/right.png")
 right_btn = Button(image=right_img, highlightthickness=0, command=is_known)
 right_btn.grid(row=1, column=1)
+
 window.mainloop()
